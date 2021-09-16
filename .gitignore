@@ -1,0 +1,5 @@
+# JetBrains IDE
+.idea
+
+# Pulsar Data
+*/pulsar/pulsar/data

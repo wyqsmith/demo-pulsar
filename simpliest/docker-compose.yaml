@@ -1,0 +1,43 @@
+version: "3.9"
+
+networks:
+  pulsar_group:
+    external: false
+
+x-pulsar-group-common:
+  &pulsar-group-common
+  restart: always
+  networks:
+    - pulsar_group
+
+services:
+
+  pulsar:
+    <<: *pulsar-group-common
+    image: apachepulsar/pulsar:2.8.1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./pulsar/pulsar/data:/pulsar/data:Z
+      - ./pulsar/pulsar/conf:/pulsar/conf:Z
+    ports:
+      - "6650:6650"
+      - "8080:8080"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        bin/pulsar standalone
+
+  manager:
+    <<: *pulsar-group-common
+    image: apachepulsar/pulsar-manager:v0.2.0
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./manager/pulsar-manager/pulsar-manager/application.properties:/pulsar-manager/pulsar-manager/application.properties:Z
+    ports:
+      - "9527:9527"
+      - "7750:7750"
+    depends_on:
+      - pulsar
+    environment:
+      SPRING_CONFIGURATION_FILE: /pulsar-manager/pulsar-manager/application.properties
